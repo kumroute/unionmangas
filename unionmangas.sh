@@ -44,7 +44,8 @@ function config_file_add() {
   echo $(echo $name | awk '{print tolower($0)}' | sed -e 's/ /-/g' | sed -e 's/(//g' | sed -e 's/)//g') >> ~/Documentos/unionmangas/config.txt
 }
 function config_file_remove() {
-  read -p " :: Nome do mangá : " name
+  read -p " :: Número do mangá : " numero
+  name=$(cat ~/Documentos/unionmangas/config_name_list.txt | head -$numero | tail -1)
   sed -i "/${name}/d" ~/Documentos/unionmangas/config_name_list.txt
   nome_manga_url=$(echo $name | awk '{print tolower($0)}' | sed -e 's/ /-/g' | sed -e 's/(//g' | sed -e 's/)//g')
   sed -i '/'${nome_manga_url}'/d' ~/Documentos/unionmangas/config.txt
