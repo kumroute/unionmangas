@@ -1,4 +1,18 @@
 #!/usr/bin/env bash
+function version() {
+  echo "[+] Union Mangás: Leitor Online em Português 1.1"
+}
+function frase() {
+  echo "Veja https://github.com/kumroute/unionmangas/ para mais informações"
+}
+function verificar_arquivos() {
+  if [ ! -e ~/Documentos/Unionmangas/config_name_list.txt ] ; then
+    echo "Tales of Demons and Gods" > ~/Documentos/Unionmangas/config_name_list.txt
+  fi
+  if [ ! -e ~/Documentos/Unionmangas/config.txt ] ; then
+    echo "tales-of-demons-and-gods" > ~/Documentos/Unionmangas/config.txt
+  fi
+}
 function show() {
   if [ $1 ] ; then param=$1
   else param=2 ; fi
@@ -20,7 +34,7 @@ function show() {
     valor=$(cat ~/Documentos/Unionmangas/temp.txt) ; rm ~/Documentos/Unionmangas/temp.txt
     nome_manga=$(sed -n $valor ~/Documentos/Unionmangas/config_name_list.txt)
     nome_manga_url=$(sed -n $valor ~/Documentos/Unionmangas/config.txt)
-    config $nome_manga_url ; echo "$nome_manga" ; show_cap
+    config $nome_manga_url ; echo "[#$j] $nome_manga" ; show_cap
     j=$[j+1]
   done
 }
@@ -36,27 +50,56 @@ function config_file_remove() {
   sed -i '/'${nome_manga_url}'/d' ~/Documentos/Unionmangas/config.txt
 }
 function config_file_list() {
-  cat ~/Documentos/Unionmangas/config_name_list.txt
+  num_linhas=$(wc -l ~/Documentos/Unionmangas/config_name_list.txt | awk '{print $1}')
+  k=1 ; while [ $k -le $num_linhas ] ; do
+    echo "[#$k] $(cat ~/Documentos/Unionmangas/config_name_list.txt | head -$k | tail -1)"
+    k=$[k+1]
+  done
 }
+function read_cap() {
+  nome_manga=$(cat ~/Documentos/Unionmangas/config_name_list.txt | head -$1 | tail -1)
+  echo "[+] Nome do mangá: $nome_manga"
+  nome_manga_url=$(cat ~/Documentos/Unionmangas/config.txt | head -$1 | tail -1)
+  if [ "$2" == "last" ] ; then
+    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > union.txt
+    num_cap=$(cat union.txt | awk {'print $2'})
+    echo "[+] Número do capítulo: $num_cap"
+  else
+    num_cap=$2
+    echo "[+] Número do capítulo: $num_cap"
+  fi
+  nome_manga_url=$(cat ~/Documentos/Unionmangas/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
+  firefox http://unionmangas.net/leitor/$nome_manga_url/$num_cap
+}
+
+verificar_arquivos
+
 if [ "$1" == "help" ] || [ ! $1 ] ; then
-  echo "[+] Union Mangás: Leitor Online em Português"
+  version
   echo "[+] Uso: unionmangas <opção>"
   echo " :: help         :: mostra essa página de ajuda"
   echo " :: show         :: mostrar os mangás"
   echo " :: config       :: configurações"
-  echo "Veja https://github.com/kumroute/unionmangas/ para mais informações"
+  echo " :: read         :: ler um mangá"
+  frase
 fi
 if [ "$1" == "show" ] ; then
-  show $2
+  if [ ! $2 ] ; then
+    version
+    echo "[+] Uso: unionmangas show <número de capítulos>"
+    frase
+  else
+    show $2
+  fi
 fi
 if [ "$1" == "config" ] ; then
   if [ ! $2 ] ; then
-    echo "[+] Union Mangás: Leitor Online em Português"
+    version
     echo "[+] Uso: unionmangas config <opção>"
     echo " :: add          :: adicionar um mangá na lista"
     echo " :: remove       :: remover um mangá da lista"
     echo " :: list         :: mostrar os mangás da lista"
-    echo "Veja https://github.com/kumroute/unionmangas/ para mais informações"
+    frase
   fi
   if [ "$2" == "add" ] ; then
     config_file_add
@@ -71,5 +114,17 @@ if [ "$1" == "config" ] ; then
     else
       config_file_list
     fi
+  fi
+fi
+if [ "$1" == "read" ] ; then
+  if [ ! $2 ] ; then
+    version
+    echo "[+] Uso: unionmangas <número do mangá> <capítulo>"
+    echo " :: Se <capítulo> for omitido, o capítulo mais recente será selecionado"
+    frase
+  else
+    if [ ! $3 ] ; then param="last"
+    else param=$3 ; fi
+    read_cap $2 $param
   fi
 fi
