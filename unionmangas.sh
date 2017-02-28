@@ -6,11 +6,11 @@ function frase() {
   echo "Veja https://github.com/kumroute/unionmangas/ para mais informações"
 }
 function verificar_arquivos() {
-  if [ ! -e ~/Documentos/Unionmangas/config_name_list.txt ] ; then
-    echo "Tales of Demons and Gods" > ~/Documentos/Unionmangas/config_name_list.txt
+  if [ ! -e ~/Documentos/unionmangas/config_name_list.txt ] ; then
+    echo "Tales of Demons and Gods" > ~/Documentos/unionmangas/config_name_list.txt
   fi
-  if [ ! -e ~/Documentos/Unionmangas/config.txt ] ; then
-    echo "tales-of-demons-and-gods" > ~/Documentos/Unionmangas/config.txt
+  if [ ! -e ~/Documentos/unionmangas/config.txt ] ; then
+    echo "tales-of-demons-and-gods" > ~/Documentos/unionmangas/config.txt
   fi
 }
 function show() {
@@ -27,39 +27,39 @@ function show() {
     rm union.txt
   }
   echo "[+] Hoje é dia $(date +%d/%m/%Y)"
-  num_linhas=$(wc -l ~/Documentos/Unionmangas/config.txt | awk '{print $1}')
+  num_linhas=$(wc -l ~/Documentos/unionmangas/config.txt | awk '{print $1}')
   j=1 ; while [ $j -le $num_linhas ] ; do
-    printf $j > ~/Documentos/Unionmangas/temp.txt
-    printf p >> ~/Documentos/Unionmangas/temp.txt
-    valor=$(cat ~/Documentos/Unionmangas/temp.txt) ; rm ~/Documentos/Unionmangas/temp.txt
-    nome_manga=$(sed -n $valor ~/Documentos/Unionmangas/config_name_list.txt)
-    nome_manga_url=$(sed -n $valor ~/Documentos/Unionmangas/config.txt)
+    printf $j > ~/Documentos/unionmangas/temp.txt
+    printf p >> ~/Documentos/unionmangas/temp.txt
+    valor=$(cat ~/Documentos/unionmangas/temp.txt) ; rm ~/Documentos/unionmangas/temp.txt
+    nome_manga=$(sed -n $valor ~/Documentos/unionmangas/config_name_list.txt)
+    nome_manga_url=$(sed -n $valor ~/Documentos/unionmangas/config.txt)
     config $nome_manga_url ; echo "[#$j] $nome_manga" ; show_cap
     j=$[j+1]
   done
 }
 function config_file_add() {
   read -p " :: Nome do mangá : " name
-  echo $name >> ~/Documentos/Unionmangas/config_name_list.txt
-  echo $(echo $name | awk '{print tolower($0)}' | sed -e 's/ /-/g' | sed -e 's/(//g' | sed -e 's/)//g') >> ~/Documentos/Unionmangas/config.txt
+  echo $name >> ~/Documentos/unionmangas/config_name_list.txt
+  echo $(echo $name | awk '{print tolower($0)}' | sed -e 's/ /-/g' | sed -e 's/(//g' | sed -e 's/)//g') >> ~/Documentos/unionmangas/config.txt
 }
 function config_file_remove() {
   read -p " :: Nome do mangá : " name
-  sed -i "/${name}/d" ~/Documentos/Unionmangas/config_name_list.txt
+  sed -i "/${name}/d" ~/Documentos/unionmangas/config_name_list.txt
   nome_manga_url=$(echo $name | awk '{print tolower($0)}' | sed -e 's/ /-/g' | sed -e 's/(//g' | sed -e 's/)//g')
-  sed -i '/'${nome_manga_url}'/d' ~/Documentos/Unionmangas/config.txt
+  sed -i '/'${nome_manga_url}'/d' ~/Documentos/unionmangas/config.txt
 }
 function config_file_list() {
-  num_linhas=$(wc -l ~/Documentos/Unionmangas/config_name_list.txt | awk '{print $1}')
+  num_linhas=$(wc -l ~/Documentos/unionmangas/config_name_list.txt | awk '{print $1}')
   k=1 ; while [ $k -le $num_linhas ] ; do
-    echo "[#$k] $(cat ~/Documentos/Unionmangas/config_name_list.txt | head -$k | tail -1)"
+    echo "[#$k] $(cat ~/Documentos/unionmangas/config_name_list.txt | head -$k | tail -1)"
     k=$[k+1]
   done
 }
 function read_cap() {
-  nome_manga=$(cat ~/Documentos/Unionmangas/config_name_list.txt | head -$1 | tail -1)
+  nome_manga=$(cat ~/Documentos/unionmangas/config_name_list.txt | head -$1 | tail -1)
   echo "[+] Nome do mangá: $nome_manga"
-  nome_manga_url=$(cat ~/Documentos/Unionmangas/config.txt | head -$1 | tail -1)
+  nome_manga_url=$(cat ~/Documentos/unionmangas/config.txt | head -$1 | tail -1)
   if [ "$2" == "last" ] ; then
     curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > union.txt
     num_cap=$(cat union.txt | awk {'print $2'})
@@ -68,7 +68,7 @@ function read_cap() {
     num_cap=$2
     echo "[+] Número do capítulo: $num_cap"
   fi
-  nome_manga_url=$(cat ~/Documentos/Unionmangas/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
+  nome_manga_url=$(cat ~/Documentos/unionmangas/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
   firefox http://unionmangas.net/leitor/$nome_manga_url/$num_cap
 }
 
@@ -109,8 +109,8 @@ if [ "$1" == "config" ] ; then
   fi
   if [ "$2" == "list" ] ; then
     if [ "$3" == "remove" ] ; then
-      rm ~/Documentos/Unionmangas/config_name_list.txt
-      rm ~/Documentos/Unionmangas/config.txt
+      rm ~/Documentos/unionmangas/config_name_list.txt
+      rm ~/Documentos/unionmangas/config.txt
     else
       config_file_list
     fi
