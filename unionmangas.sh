@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 function version() {
-  echo "[+] Union Mangás: Leitor Online em Português 1.2"
+  echo "[+] Union Mangás: Leitor Online em Português 1.3"
 }
 function frase() {
   echo "Veja https://github.com/kumroute/unionmangas/ para mais informações"
@@ -73,6 +73,38 @@ function read_cap() {
   firefox http://unionmangas.net/leitor/$nome_manga_url/$num_cap
   rm ~/Documentos/unionmangas/union.txt
 }
+function download() {
+  nome_manga=$(cat ~/Documentos/unionmangas/config_name_list.txt | head -$1 | tail -1)
+  echo "[+] Nome do mangá: $nome_manga"
+  nome_manga_url=$(cat ~/Documentos/unionmangas/config.txt | head -$1 | tail -1)
+  if [ "$2" == "last" ] ; then
+    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > ~/Documentos/unionmangas/union.txt
+    num_cap=$(cat ~/Documentos/unionmangas/union.txt | awk {'print $2'})
+    echo "[+] Número do capítulo: $num_cap"
+  else
+    num_cap=$2
+    echo "[+] Número do capítulo: $num_cap"
+  fi
+  nome_manga_url=$(cat ~/Documentos/unionmangas/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
+  curl -s http://unionmangas.net/leitor/$nome_manga_url/$num_cap | grep ".jpg" | grep "data-lazy" | sed -e 's/<img data-lazy=\"//g' | sed -e 's/  class=\"real img-responsive\" id=\"imagem-//g' | sed -e 's/.jpg\"/.jpg /g' | sed -e 's/  \/>//g' | sed -e 's/                    //g' > ~/Documentos/unionmangas/union_links.txt
+  nome_dir=$(echo $nome_manga | sed -e 's/ /_/g')
+  if [ ! -d ~/Documentos/unionmangas/$nome_dir ] ; then
+    mkdir ~/Documentos/unionmangas/$nome_dir
+  fi
+  if [ ! -d ~/Documentos/unionmangas/$nome_dir/$num_cap ] ; then
+    mkdir ~/Documentos/unionmangas/$nome_dir/$num_cap
+  fi
+  num_linhas=$(wc -l ~/Documentos/unionmangas/union_links.txt | awk '{print $1}')
+  n=1 ; while [ $n -le $num_linhas ] ; do
+    capitulo=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $2'})
+    echo "[+] Baixando $capitulo..."
+    link_baixar=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/_/ /g')
+    wget -q "$link_baixar"
+    mv $capitulo ~/Documentos/unionmangas/$nome_dir/$num_cap/
+    n=$[n+1]
+  done
+  rm ~/Documentos/unionmangas/union_links.txt
+}
 function news() {
   curl -s http://unionmangas.net | grep "&nbsp;<a href" | sed -e "s/&nbsp;<a href=\"http:\/\/unionmangas.net\/leitor\///g" | sed -e 's/<\/a>//g' | sed -e 's/\">/ /g' | sed -e 's/                                / /g' | sed -e 's/\// /g' > ~/Documentos/unionmangas/union.txt
   quantidade=$1
@@ -98,6 +130,7 @@ if [ "$1" == "help" ] || [ ! $1 ] ; then
   echo " :: config       :: configurações"
   echo " :: read         :: ler um mangá"
   echo " :: news         :: mostra os últimos mangás publicados"
+  echo " :: download     :: baixa um capítulo de algum mangá"
   frase
 fi
 if [ "$1" == "show" ] ; then
@@ -133,16 +166,17 @@ if [ "$1" == "config" ] ; then
     fi
   fi
 fi
-if [ "$1" == "read" ] ; then
+if [ "$1" == "read" ] || [ "$1" == "download" ] ; then
   if [ ! $2 ] ; then
     version
-    echo "[+] Uso: unionmangas <número do mangá> <capítulo>"
+    echo "[+] Uso: unionmangas $1 <número do mangá> <capítulo>"
     echo " :: Se <capítulo> for omitido, o capítulo mais recente será selecionado"
     frase
   else
     if [ ! $3 ] ; then param="last"
     else param=$3 ; fi
-    read_cap $2 $param
+    if [ "$1" == "read" ] ; then read_cap $2 $param
+    else download $2 $param ; fi
   fi
 fi
 if [ "$1" == "news" ] ; then
