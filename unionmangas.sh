@@ -98,7 +98,7 @@ function download() {
   n=1 ; while [ $n -le $num_linhas ] ; do
     capitulo=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $2'})
     echo "[+] Baixando $capitulo..."
-    link_baixar=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/_/ /g')
+    link_baixar=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/_/ /g' | sed -e 's/UnM /UnM_/g')
     wget -q "$link_baixar"
     mv $capitulo ~/Documentos/unionmangas/$nome_dir/$num_cap/
     n=$[n+1]
