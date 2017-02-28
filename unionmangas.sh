@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 function version() {
-  echo "[+] Union Mangás: Leitor Online em Português 1.1"
+  echo "[+] Union Mangás: Leitor Online em Português 1.2"
 }
 function frase() {
   echo "Veja https://github.com/kumroute/unionmangas/ para mais informações"
@@ -17,14 +17,14 @@ function show() {
   if [ $1 ] ; then param=$1
   else param=2 ; fi
   function config() {
-  curl -s http://unionmangas.net/manga/$1 | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -$param > union.txt
+  curl -s http://unionmangas.net/manga/$1 | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -$param > ~/Documentos/unionmangas/union.txt
   }
   function show_cap() {
     i=1 ; while [ $i -le $param ] ; do
-      echo "  $(cat union.txt | head -$i | tail -1)"
+      echo "  $(cat ~/Documentos/unionmangas/union.txt | head -$i | tail -1)"
       i=$[i+1]
     done
-    rm union.txt
+    rm ~/Documentos/unionmangas/union.txt
   }
   echo "[+] Hoje é dia $(date +%d/%m/%Y)"
   num_linhas=$(wc -l ~/Documentos/unionmangas/config.txt | awk '{print $1}')
@@ -62,8 +62,8 @@ function read_cap() {
   echo "[+] Nome do mangá: $nome_manga"
   nome_manga_url=$(cat ~/Documentos/unionmangas/config.txt | head -$1 | tail -1)
   if [ "$2" == "last" ] ; then
-    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > union.txt
-    num_cap=$(cat union.txt | awk {'print $2'})
+    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > ~/Documentos/unionmangas/union.txt
+    num_cap=$(cat ~/Documentos/unionmangas/union.txt | awk {'print $2'})
     echo "[+] Número do capítulo: $num_cap"
   else
     num_cap=$2
@@ -71,6 +71,21 @@ function read_cap() {
   fi
   nome_manga_url=$(cat ~/Documentos/unionmangas/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
   firefox http://unionmangas.net/leitor/$nome_manga_url/$num_cap
+  rm ~/Documentos/unionmangas/union.txt
+}
+function news() {
+  curl -s http://unionmangas.net | grep "&nbsp;<a href" | sed -e "s/&nbsp;<a href=\"http:\/\/unionmangas.net\/leitor\///g" | sed -e 's/<\/a>//g' | sed -e 's/\">/ /g' | sed -e 's/                                / /g' | sed -e 's/\// /g' > ~/Documentos/unionmangas/union.txt
+  quantidade=$1
+  m=1 ; while [ $m -le $quantidade ] ; do
+    printf $m > ~/Documentos/unionmangas/temp.txt
+    printf p >> ~/Documentos/unionmangas/temp.txt
+    valor=$(cat ~/Documentos/unionmangas/temp.txt) ; rm ~/Documentos/unionmangas/temp.txt
+    nome_manga=$(sed -n $valor ~/Documentos/unionmangas/union.txt | awk {'print $1'} | sed -e 's/_/ /g')
+    numero_cap=$(sed -n $valor ~/Documentos/unionmangas/union.txt | awk {'print $4'})
+    echo "[#$m] $nome_manga"
+    echo "  Cap. $numero_cap"
+    m=$[m+1]
+  done
 }
 
 verificar_arquivos
@@ -79,9 +94,10 @@ if [ "$1" == "help" ] || [ ! $1 ] ; then
   version
   echo "[+] Uso: unionmangas <opção>"
   echo " :: help         :: mostra essa página de ajuda"
-  echo " :: show         :: mostrar os mangás"
+  echo " :: show         :: mostrar os mangás configurados"
   echo " :: config       :: configurações"
   echo " :: read         :: ler um mangá"
+  echo " :: news         :: mostra os últimos mangás publicados"
   frase
 fi
 if [ "$1" == "show" ] ; then
@@ -127,5 +143,14 @@ if [ "$1" == "read" ] ; then
     if [ ! $3 ] ; then param="last"
     else param=$3 ; fi
     read_cap $2 $param
+  fi
+fi
+if [ "$1" == "news" ] ; then
+  if [ ! $2 ] ; then
+    version
+    echo "[+] Uso: unionmangas news <número de mangás>"
+    frase
+  else
+    news $2
   fi
 fi
