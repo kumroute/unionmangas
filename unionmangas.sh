@@ -7,90 +7,90 @@ function frase() {
 }
 function verificar_arquivos() {
   : ${XDG_CONFIG_HOME:="$HOME/.config"}
-  : ${MANGA_DOWNLOAD:="$HOME/.config/unionmangas"}
-  diretorio_config="$XDG_CONFIG_HOME"
-  if [ ! -d $diretorio_config/unionmangas ] ; then
-    mkdir $diretorio_config/unionmangas
+  diretorio_config="$XDG_CONFIG_HOME/unionmangas"
+  : ${MANGA_DOWNLOAD:="$diretorio_config/Downloads"}
+  if [ ! -d $diretorio_config ] ; then
+    mkdir $diretorio_config
   fi
-  if [ ! -e $diretorio_config/unionmangas/config_name_list.txt ] ; then
-    echo "Tales of Demons and Gods" > $diretorio_config/unionmangas/config_name_list.txt
+  if [ ! -e $diretorio_config/config_name_list.txt ] ; then
+    echo "Tales of Demons and Gods" > $diretorio_config/config_name_list.txt
   fi
-  if [ ! -e $diretorio_config/unionmangas/config.txt ] ; then
-    echo "tales-of-demons-and-gods" > $diretorio_config/unionmangas/config.txt
+  if [ ! -e $diretorio_config/config.txt ] ; then
+    echo "tales-of-demons-and-gods" > $diretorio_config/config.txt
   fi
 }
 function show() {
   if [ $1 ] ; then param=$1
   else param=2 ; fi
   function config() {
-  curl -s http://unionmangas.net/manga/$1 | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -$param > $diretorio_config/unionmangas/union.txt
+  curl -s http://unionmangas.net/manga/$1 | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -$param > $diretorio_config/union.txt
   }
   function show_cap() {
     i=1 ; while [ $i -le $param ] ; do
-      echo "  $(cat $diretorio_config/unionmangas/union.txt | head -$i | tail -1)"
+      echo "  $(cat $diretorio_config/union.txt | head -$i | tail -1)"
       i=$[i+1]
     done
-    rm $diretorio_config/unionmangas/union.txt
+    rm $diretorio_config/union.txt
   }
   echo "[+] Hoje é dia $(date +%d/%m/%Y)"
-  num_linhas=$(wc -l $diretorio_config/unionmangas/config.txt | awk '{print $1}')
+  num_linhas=$(wc -l $diretorio_config/config.txt | awk '{print $1}')
   j=1 ; while [ $j -le $num_linhas ] ; do
     valor=$(printf "$j" ; printf "p")
-    nome_manga=$(sed -n $valor $diretorio_config/unionmangas/config_name_list.txt)
-    nome_manga_url=$(sed -n $valor $diretorio_config/unionmangas/config.txt)
+    nome_manga=$(sed -n $valor $diretorio_config/config_name_list.txt)
+    nome_manga_url=$(sed -n $valor $diretorio_config/config.txt)
     config $nome_manga_url ; echo "[#$j] $nome_manga" ; show_cap
     j=$[j+1]
   done
 }
 function config_file_add() {
   read -p " :: Nome do mangá : " name
-  echo $name >> $diretorio_config/unionmangas/config_name_list.txt
-  echo $(echo $name | awk '{print tolower($0)}' | sed -e 's/ /-/g' | sed -e 's/(//g' | sed -e 's/)//g') >> $diretorio_config/unionmangas/config.txt
+  echo $name >> $diretorio_config/config_name_list.txt
+  echo $(echo $name | awk '{print tolower($0)}' | sed -e 's/ /-/g' | sed -e 's/(//g' | sed -e 's/)//g') >> $diretorio_config/config.txt
 }
 function config_file_remove() {
   read -p " :: Número do mangá : " numero
-  name=$(cat $diretorio_config/unionmangas/config_name_list.txt | head -$numero | tail -1)
-  sed -i "/${name}/d" $diretorio_config/unionmangas/config_name_list.txt
+  name=$(cat $diretorio_config/config_name_list.txt | head -$numero | tail -1)
+  sed -i "/${name}/d" $diretorio_config/config_name_list.txt
   nome_manga_url=$(echo $name | awk '{print tolower($0)}' | sed -e 's/ /-/g' | sed -e 's/(//g' | sed -e 's/)//g')
-  sed -i '/'${nome_manga_url}'/d' $diretorio_config/unionmangas/config.txt
+  sed -i '/'${nome_manga_url}'/d' $diretorio_config/config.txt
 }
 function config_file_list() {
-  num_linhas=$(wc -l $diretorio_config/unionmangas/config_name_list.txt | awk '{print $1}')
+  num_linhas=$(wc -l $diretorio_config/config_name_list.txt | awk '{print $1}')
   k=1 ; while [ $k -le $num_linhas ] ; do
-    echo "[#$k] $(cat $diretorio_config/unionmangas/config_name_list.txt | head -$k | tail -1)"
+    echo "[#$k] $(cat $diretorio_config/config_name_list.txt | head -$k | tail -1)"
     k=$[k+1]
   done
 }
 function read_cap() {
-  nome_manga=$(cat $diretorio_config/unionmangas/config_name_list.txt | head -$1 | tail -1)
+  nome_manga=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1)
   echo "[+] Nome do mangá: $nome_manga"
-  nome_manga_url=$(cat $diretorio_config/unionmangas/config.txt | head -$1 | tail -1)
+  nome_manga_url=$(cat $diretorio_config/config.txt | head -$1 | tail -1)
   if [ "$2" == "last" ] ; then
-    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > $diretorio_config/unionmangas/union.txt
-    num_cap=$(cat $diretorio_config/unionmangas/union.txt | awk {'print $2'})
+    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > $diretorio_config/union.txt
+    num_cap=$(cat $diretorio_config/union.txt | awk {'print $2'})
     echo "[+] Número do capítulo: $num_cap"
   else
     num_cap=$2
     echo "[+] Número do capítulo: $num_cap"
   fi
-  nome_manga_url=$(cat $diretorio_config/unionmangas/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
+  nome_manga_url=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
   firefox http://unionmangas.net/leitor/$nome_manga_url/$num_cap
-  rm $diretorio_config/unionmangas/union.txt
+  rm $diretorio_config/union.txt
 }
 function download() {
-  nome_manga=$(cat $diretorio_config/unionmangas/config_name_list.txt | head -$1 | tail -1)
+  nome_manga=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1)
   echo "[+] Nome do mangá: $nome_manga"
-  nome_manga_url=$(cat $diretorio_config/unionmangas/config.txt | head -$1 | tail -1)
+  nome_manga_url=$(cat $diretorio_config/config.txt | head -$1 | tail -1)
   if [ "$2" == "last" ] ; then
-    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > $diretorio_config/unionmangas/union.txt
-    num_cap=$(cat $diretorio_config/unionmangas/union.txt | awk {'print $2'})
+    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > $diretorio_config/union.txt
+    num_cap=$(cat $diretorio_config/union.txt | awk {'print $2'})
     echo "[+] Número do capítulo: $num_cap"
   else
     num_cap=$2
     echo "[+] Número do capítulo: $num_cap"
   fi
-  nome_manga_url=$(cat $diretorio_config/unionmangas/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
-  curl -s "http://unionmangas.net/leitor/$nome_manga_url/$num_cap" | grep ".jpg" | grep "data-lazy" | sed -e 's/<img data-lazy=\"//g' | sed -e 's/  class=\"real img-responsive\" id=\"imagem-//g' | sed -e 's/.jpg\"/.jpg /g' | sed -e 's/  \/>//g' | sed -e 's/                    //g' > $diretorio_config/unionmangas/union_links.txt
+  nome_manga_url=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
+  curl -s "http://unionmangas.net/leitor/$nome_manga_url/$num_cap" | grep ".jpg" | grep "data-lazy" | sed -e 's/<img data-lazy=\"//g' | sed -e 's/  class=\"real img-responsive\" id=\"imagem-//g' | sed -e 's/.jpg\"/.jpg /g' | sed -e 's/  \/>//g' | sed -e 's/                    //g' > $diretorio_config/union_links.txt
   nome_dir=$(echo $nome_manga | sed -e 's/ /_/g')
   if [ ! -d $MANGA_DOWNLOAD/$nome_dir ] ; then
     mkdir $MANGA_DOWNLOAD/$nome_dir
@@ -98,12 +98,12 @@ function download() {
   if [ ! -d $MANGA_DOWNLOAD/$nome_dir/$num_cap ] ; then
     mkdir $MANGA_DOWNLOAD/$nome_dir/$num_cap
   fi
-  num_linhas=$(wc -l $diretorio_config/unionmangas/union_links.txt | awk '{print $1}')
+  num_linhas=$(wc -l $diretorio_config/union_links.txt | awk '{print $1}')
   n=1 ; while [ $n -le $num_linhas ] ; do
-    capitulo=$(cat $diretorio_config/unionmangas/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | awk {'print $2'})
+    capitulo=$(cat $diretorio_config/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | awk {'print $2'})
     echo "[+] Baixando $capitulo..."
-    nome_manga_url=$(cat $diretorio_config/unionmangas/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $5}' | sed -e 's/_/ /g')
-    arquivo=$(cat $diretorio_config/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $7}' | sed -e 's/-_/- /g')
+    nome_manga_url=$(cat $diretorio_config/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $5}' | sed -e 's/_/ /g')
+    arquivo=$(cat $diretorio_config/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $7}' | sed -e 's/-_/- /g')
     link_baixar="http://unionmangas.net/leitor/mangas/$nome_manga_url/$num_cap/$arquivo"
     wget -q "$link_baixar"
     mv ./"$(echo $capitulo | sed -e 's/-_/- /g')" $MANGA_DOWNLOAD/$nome_dir/$num_cap/$capitulo
@@ -115,15 +115,15 @@ function download() {
   if [ "$escolha" == "s" ] || [ "$escolha" == "S" ] ; then
     viewnior $MANGA_DOWNLOAD/$nome_dir/$num_cap/$primeiro_cap
   fi
-  rm $diretorio_config/unionmangas/union_links.txt
+  rm $diretorio_config/union_links.txt
 }
 function news() {
-  curl -s http://unionmangas.net | grep "&nbsp;<a href" | sed -e "s/&nbsp;<a href=\"http:\/\/unionmangas.net\/leitor\///g" | sed -e 's/<\/a>//g' | sed -e 's/\">/ /g' | sed -e 's/                                / /g' | sed -e 's/\// /g' > $diretorio_config/unionmangas/union.txt
+  curl -s http://unionmangas.net | grep "&nbsp;<a href" | sed -e "s/&nbsp;<a href=\"http:\/\/unionmangas.net\/leitor\///g" | sed -e 's/<\/a>//g' | sed -e 's/\">/ /g' | sed -e 's/                                / /g' | sed -e 's/\// /g' > $diretorio_config/union.txt
   quantidade=$1
   m=1 ; while [ $m -le $quantidade ] ; do
     valor=$(printf "$m" ; printf "p")
-    nome_manga=$(sed -n $valor $diretorio_config/unionmangas/union.txt | awk {'print $1'} | sed -e 's/_/ /g')
-    numero_cap=$(sed -n $valor $diretorio_config/unionmangas/union.txt | awk {'print $4'})
+    nome_manga=$(sed -n $valor $diretorio_config/union.txt | awk {'print $1'} | sed -e 's/_/ /g')
+    numero_cap=$(sed -n $valor $diretorio_config/union.txt | awk {'print $4'})
     echo "[#$m] $nome_manga"
     echo "  Cap. $numero_cap"
     m=$[m+1]
@@ -169,8 +169,8 @@ if [ "$1" == "config" ] ; then
   fi
   if [ "$2" == "list" ] ; then
     if [ "$3" == "remove" ] ; then
-      rm $diretorio_config/unionmangas/config_name_list.txt
-      rm $diretorio_config/unionmangas/config.txt
+      rm $diretorio_config/config_name_list.txt
+      rm $diretorio_config/config.txt
     else
       config_file_list
     fi
