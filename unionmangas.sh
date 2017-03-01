@@ -100,11 +100,7 @@ function download() {
     echo "[+] Baixando $capitulo..."
     link_baixar=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/_/ /g' | sed -e 's/UnM /UnM_/g')
     wget -q "$link_baixar"
-    if [ "$capitulo" == "-_Créditos.jpg" ] ; then
-      mv ./'- Créditos.jpg' créditos.jpg ; capitulo="créditos.jpg" ; fi
-    if [ "$capitulo" == "-_Precisa-se.jpg" ] ; then
-      mv ./'- Precisa-se.jpg' precisa-se.jpg ; capitulo="precisa-se.jpg" ; fi
-    mv $capitulo ~/Documentos/unionmangas/$nome_dir/$num_cap/
+    mv ./"$(echo $capitulo | sed -e 's/_/ /g')" ~/Documentos/unionmangas/$nome_dir/$num_cap/
     n=$[n+1]
   done
   rm ~/Documentos/unionmangas/union_links.txt
