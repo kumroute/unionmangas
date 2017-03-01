@@ -3,12 +3,12 @@ function version() {
   echo "[+] Union Mangás: Leitor Online em Português 1.4"
 }
 function frase() {
-  echo "Altere $"MANGA_DOWNLOAD" para alterar o local de download"
   echo "Veja https://github.com/kumroute/unionmangas/ para mais informações"
 }
 function verificar_arquivos() {
   : ${XDG_CONFIG_HOME:="$HOME/.config"}
-  diretorio_config="$XDG_CONFIG_HOME/unionmangas" # Não é mais identico
+  diretorio_config="$XDG_CONFIG_HOME/unionmangas" 
+  # coloca o valor padrao de MANGA_DOWNLOAD se nao mudado pra alguma outra pasta
   : ${MANGA_DOWNLOAD:="$diretorio_config/Downloads"}
   if [ ! -d $MANGA_DOWNLOAD ] ; then
     mkdir $MANGA_DOWNLOAD
