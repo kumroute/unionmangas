@@ -14,10 +14,9 @@ function verificar_arquivos() {
       PASTA_MANGAS=~/Documentos/unionmangas
     fi
     mkdir $PASTA_MANGAS # nao faz nada se já existir 
-  } #&> /dev/null # Esconde a saída dos comandos acima
+  } &> /dev/null # Esconde a saída dos comandos acima
 
   if [ ! -e $PASTA_MANGAS/config_name_list.txt ] ; then
-    echo "test"
     echo "Tales of Demons and Gods" > $PASTA_MANGAS/config_name_list.txt
   fi
   if [ ! -e $PASTA_MANGAS/config.txt ] ; then
