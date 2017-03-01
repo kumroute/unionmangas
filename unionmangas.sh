@@ -3,19 +3,21 @@ function version() {
   echo "[+] Union Mangás: Leitor Online em Português 1.4"
 }
 function frase() {
+  echo "Altere $"MANGA_DOWNLOAD" para alterar o local de download"
   echo "Veja https://github.com/kumroute/unionmangas/ para mais informações"
 }
 function verificar_arquivos() {
-  { # abre "econdedor de saída"
-    : ${XDG_CONFIG_HOME:="$HOME/.config"} #Seta se nao existente
-    : ${diretorio_config:="$XDG_CONFIG_HOME/unionmangas"}
-    : ${MANGA_DOWNLOAD:="$diretorio_config/downloads"}
-    mkdir $diretorio_config
+  : ${XDG_CONFIG_HOME:="$HOME/.config"}
+  diretorio_config="$XDG_CONFIG_HOME/unionmangas" # Não é mais identico
+  : ${MANGA_DOWNLOAD:="$diretorio_config/Downloads"}
+  if [ ! -d $MANGA_DOWNLOAD ] ; then
     mkdir $MANGA_DOWNLOAD
-  } &> /dev/null # Esconde a saída dos comandos acima
-
+  fi
+  if [ ! -d $diretorio_config ] ; then
+    mkdir $diretorio_config
+  fi
   if [ ! -e $diretorio_config/config_name_list.txt ] ; then
-    echo "Tales of Demons and Gods" > /config_name_list.txt
+    echo "Tales of Demons and Gods" > $diretorio_config/config_name_list.txt
   fi
   if [ ! -e $diretorio_config/config.txt ] ; then
     echo "tales-of-demons-and-gods" > $diretorio_config/config.txt
@@ -100,12 +102,12 @@ function download() {
   if [ ! -d $MANGA_DOWNLOAD/$nome_dir/$num_cap ] ; then
     mkdir $MANGA_DOWNLOAD/$nome_dir/$num_cap
   fi
-  num_linhas=$(wc -l $diretorio_config/unionmangas/union_links.txt | awk '{print $1}')
+  num_linhas=$(wc -l $diretorio_config/union_links.txt | awk '{print $1}')
   n=1 ; while [ $n -le $num_linhas ] ; do
-    capitulo=$(cat $diretorio_config/unionmangas/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | awk {'print $2'})
+    capitulo=$(cat $diretorio_config/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | awk {'print $2'})
     echo "[+] Baixando $capitulo..."
-    nome_manga_url=$(cat $diretorio_config/unionmangas/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $5}' | sed -e 's/_/ /g')
-    arquivo=$(cat $diretorio_config/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $7}' | sed -e 's/-_/- /g')
+    nome_manga_url=$(cat $diretorio_config/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $5}' | sed -e 's/_/ /g')
+    arquivo=$(cat $diretorio_config/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $7}' | sed -e 's/-_/- /g')
     link_baixar="http://unionmangas.net/leitor/mangas/$nome_manga_url/$num_cap/$arquivo"
     wget -q "$link_baixar"
     mv ./"$(echo $capitulo | sed -e 's/-_/- /g')" $MANGA_DOWNLOAD/$nome_dir/$num_cap/$capitulo
