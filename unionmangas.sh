@@ -111,9 +111,9 @@ function download() {
     echo "[+] Baixando $capitulo..."
     nome_manga_url=$(cat $PASTA_MANGAS/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $5}' | sed -e 's/_/ /g')
     arquivo=$(cat $PASTA_MANGAS/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $7}' | sed -e 's/-_/- /g')    
-    link_baixar=$(cat $PASTA_MANGAS/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/_/ /g' | sed -e 's/UnM /UnM_/g')
+    link_baixar="http://unionmangas.net/leitor/mangas/$nome_manga_url/$num_cap/$arquivo"
     wget -q "$link_baixar"
-    mv ./"$(echo $capitulo | sed -e 's/_/ /g')" $PASTA_MANGAS/$nome_dir/$num_cap/$capitulo
+    mv ./"$(echo $capitulo | sed -e 's/-_/- /g')" $PASTA_MANGAS/$nome_dir/$num_cap/$capitulo
     if [ $n -eq 1 ] ; then primeiro_cap=$capitulo ; fi
     n=$[n+1]
   done
