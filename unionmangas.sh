@@ -86,7 +86,7 @@ function download() {
     echo "[+] Número do capítulo: $num_cap"
   fi
   nome_manga_url=$(cat ~/Documentos/unionmangas/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
-  curl -s http://unionmangas.net/leitor/$nome_manga_url/$num_cap | grep ".jpg" | grep "data-lazy" | sed -e 's/<img data-lazy=\"//g' | sed -e 's/  class=\"real img-responsive\" id=\"imagem-//g' | sed -e 's/.jpg\"/.jpg /g' | sed -e 's/  \/>//g' | sed -e 's/                    //g' > ~/Documentos/unionmangas/union_links.txt
+  curl -s "http://unionmangas.net/leitor/$nome_manga_url/$num_cap" | grep ".jpg" | grep "data-lazy" | sed -e 's/<img data-lazy=\"//g' | sed -e 's/  class=\"real img-responsive\" id=\"imagem-//g' | sed -e 's/.jpg\"/.jpg /g' | sed -e 's/  \/>//g' | sed -e 's/                    //g' > ~/Documentos/unionmangas/union_links.txt
   nome_dir=$(echo $nome_manga | sed -e 's/ /_/g')
   if [ ! -d ~/Documentos/unionmangas/$nome_dir ] ; then
     mkdir ~/Documentos/unionmangas/$nome_dir
@@ -98,16 +98,18 @@ function download() {
   n=1 ; while [ $n -le $num_linhas ] ; do
     capitulo=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $2'})
     echo "[+] Baixando $capitulo..."
-    link_baixar=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/_/ /g' | sed -e 's/UnM /UnM_/g')
+    nome_manga_url=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $5}' | sed -e 's/_/ /g')
+    arquivo=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $7}' | sed -e 's/-_/- /g')
+    link_baixar="http://unionmangas.net/leitor/mangas/$nome_manga_url/$num_cap/$arquivo"
     wget -q "$link_baixar"
-    mv ./"$(echo $capitulo | sed -e 's/_/ /g' | sed -e 's/UnM /UnM_/g')" ~/Documentos/unionmangas/$nome_dir/$num_cap/$capitulo
-    if [ $n -eq 1 ] ; then first=$capitulo ; fi
+    mv ./"$(echo $capitulo | sed -e 's/-_/- /g')" ~/Documentos/unionmangas/$nome_dir/$num_cap/$capitulo
+    if [ $n -eq 1 ] ; then primeiro_cap=$capitulo ; fi
     n=$[n+1]
   done
   read -n 1 -p " :: Gostaria de ler o capítulo agora ? [S/N] : " escolha
   printf "\n"
   if [ "$escolha" == "s" ] || [ "$escolha" == "S" ] ; then
-    viewnior ~/Documentos/unionmangas/$nome_dir/$num_cap/$first
+    viewnior ~/Documentos/unionmangas/$nome_dir/$num_cap/$primeiro_cap
   fi
   rm ~/Documentos/unionmangas/union_links.txt
 }
@@ -194,4 +196,3 @@ if [ "$1" == "news" ] ; then
     news $2
   fi
 fi
-
