@@ -105,6 +105,7 @@ function download() {
     n=$[n+1]
   done
   read -n 1 -p " :: Gostaria de ler o capítulo agora ? [S/N] : " escolha
+  printf "\n"
   if [ "$escolha" == "s" ] || [ "$escolha" == "S" ] ; then
     viewnior ~/Documentos/unionmangas/$nome_dir/$num_cap/$first
   fi
