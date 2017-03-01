@@ -100,9 +100,14 @@ function download() {
     echo "[+] Baixando $capitulo..."
     link_baixar=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/_/ /g' | sed -e 's/UnM /UnM_/g')
     wget -q "$link_baixar"
-    mv ./"$(echo $capitulo | sed -e 's/_/ /g')" ~/Documentos/unionmangas/$nome_dir/$num_cap/
+    mv ./"$(echo $capitulo | sed -e 's/_/ /g')" ~/Documentos/unionmangas/$nome_dir/$num_cap/$capitulo
+    if [ $n -eq 1 ] ; then first=$capitulo ; fi
     n=$[n+1]
   done
+  read -n 1 -p " :: Gostaria de ler o capítulo agora ? [S/N] : " escolha
+  if [ "$escolha" == "s" ] || [ "$escolha" == "S" ] ; then
+    viewnior ~/Documentos/unionmangas/$nome_dir/$num_cap/$first
+  fi
   rm ~/Documentos/unionmangas/union_links.txt
 }
 function news() {
@@ -188,3 +193,4 @@ if [ "$1" == "news" ] ; then
     news $2
   fi
 fi
+
