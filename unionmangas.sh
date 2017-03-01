@@ -100,7 +100,7 @@ function download() {
     echo "[+] Baixando $capitulo..."
     link_baixar=$(cat ~/Documentos/unionmangas/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/_/ /g' | sed -e 's/UnM /UnM_/g')
     wget -q "$link_baixar"
-    mv ./"$(echo $capitulo | sed -e 's/_/ /g')" ~/Documentos/unionmangas/$nome_dir/$num_cap/$capitulo
+    mv ./"$(echo $capitulo | sed -e 's/_/ /g' | sed -e 's/UnM /UnM_/g')" ~/Documentos/unionmangas/$nome_dir/$num_cap/$capitulo
     if [ $n -eq 1 ] ; then first=$capitulo ; fi
     n=$[n+1]
   done
