@@ -7,7 +7,8 @@ function frase() {
 }
 function verificar_arquivos() {
   : ${XDG_CONFIG_HOME:="$HOME/.config"}
-  diretorio_config="$XDG_CONFIG_HOME/unionmangas"
+  diretorio_config="$XDG_CONFIG_HOME/unionmangas" 
+  # coloca o valor padrao de MANGA_DOWNLOAD se nao mudado pra alguma outra pasta
   : ${MANGA_DOWNLOAD:="$diretorio_config/Downloads"}
   if [ ! -d $diretorio_config ] ; then
     mkdir $diretorio_config
