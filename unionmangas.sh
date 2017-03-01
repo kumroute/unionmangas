@@ -9,11 +9,11 @@ function verificar_arquivos() {
   : ${XDG_CONFIG_HOME:="$HOME/.config"}
   diretorio_config="$XDG_CONFIG_HOME/unionmangas"
   : ${MANGA_DOWNLOAD:="$diretorio_config/Downloads"}
-  if [ ! -d $MANGA_DOWNLOAD ] ; then
-    mkdir $MANGA_DOWNLOAD
-  fi
   if [ ! -d $diretorio_config ] ; then
     mkdir $diretorio_config
+  fi
+  if [ ! -d $MANGA_DOWNLOAD ] ; then
+    mkdir $MANGA_DOWNLOAD
   fi
   if [ ! -e $diretorio_config/config_name_list.txt ] ; then
     echo "Tales of Demons and Gods" > $diretorio_config/config_name_list.txt
