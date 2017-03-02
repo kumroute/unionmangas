@@ -26,7 +26,7 @@ function show() {
   if [ $1 ] ; then param=$1
   else param=2 ; fi
   function config() {
-  curl -s http://unionmangas.net/manga/$1 | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -$param > $diretorio_config/union.txt
+  curl -s "http://unionmangas.net/manga/$1" | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -$param > $diretorio_config/union.txt
   }
   function show_cap() {
     i=1 ; while [ $i -le $param ] ; do
