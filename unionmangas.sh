@@ -104,13 +104,15 @@ function download() {
   num_linhas=$(wc -l $diretorio_config/union_links.txt | awk '{print $1}')
   n=1 ; while [ $n -le $num_linhas ] ; do
     capitulo=$(cat $diretorio_config/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | sed -e 's/.png_/.png /g' | awk {'print $2'})
-    echo "[+] Baixando $capitulo..."
     nome_manga_url=$(cat $diretorio_config/union_links.txt | head -$n | tail -1 | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | sed -e 's/.png_/.png /g' | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $5}' | sed -e 's/_/ /g')
     arquivo=$(cat $diretorio_config/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | sed -e 's/.png_/.png /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $7}' | sed -e 's/-_/- /g')
     link_baixar="http://unionmangas.net/leitor/mangas/$nome_manga_url/$num_cap/$arquivo"
-    wget --max-redirect=0 -q "$link_baixar"
-    if [ $? -eq 0 ] ; then
-      mv ./"$(echo $capitulo | sed -e 's/-_/- /g')" $MANGA_DOWNLOAD/$nome_dir/$num_cap/$capitulo
+    if [ "$arquivo" ] ; then
+      echo "[+] Baixando $capitulo..."
+      wget --max-redirect=0 -q "$link_baixar"
+      if [ $? -eq 0 ] ; then
+        mv ./"$(echo $capitulo | sed -e 's/-_/- /g')" $MANGA_DOWNLOAD/$nome_dir/$num_cap/$capitulo
+      fi
     fi
     n=$[n+1]
   done
