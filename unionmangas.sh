@@ -119,7 +119,7 @@ function download() {
   read -n 1 -p " :: Gostaria de ler o capítulo agora ? [S/N] : " escolha
   printf "\n"
   if [ "$escolha" == "s" ] || [ "$escolha" == "S" ] ; then
-    primeiro_cap=$(ls -t -l $MANGA_DOWNLOAD/$nome_dir/$num_cap/$primeiro_cap | tail -1 | awk {'print $9'})
+    primeiro_cap=$(ls -t -l $MANGA_DOWNLOAD/$nome_dir/$num_cap/ | tail -1 | awk {'print $9'})
     viewnior $MANGA_DOWNLOAD/$nome_dir/$num_cap/$primeiro_cap
   fi
   rm $diretorio_config/union_links.txt
