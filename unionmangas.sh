@@ -175,12 +175,7 @@ if [ "$1" == "config" ] ; then
     config_file_remove
   fi
   if [ "$2" == "list" ] ; then
-    if [ "$3" == "remove" ] ; then
-      rm $diretorio_config/config_name_list.txt
-      rm $diretorio_config/config.txt
-    else
-      config_file_list
-    fi
+    config_file_list
   fi
 fi
 if [ "$1" == "read" ] || [ "$1" == "download" ] ; then
@@ -205,3 +200,10 @@ if [ "$1" == "news" ] ; then
     news $2
   fi
 fi
+if [ "$1" == "reset" ] ; then
+  rm -rf $diretorio_config/config.txt
+  rm -rf $diretorio_config/config_name_list.txt
+  rm -rf $diretorio_config/union.txt
+  rm -rf $diretorio_config/union_links.txt
+fi
+
