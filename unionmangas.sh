@@ -67,7 +67,6 @@ function config_file_list() {
 function read_cap() {
   nome_manga_url=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
   firefox http://unionmangas.net/leitor/$nome_manga_url/$num_cap
-  rm $diretorio_config/union.txt
 }
 function read_manga() {
     nome_do_manga=$(echo "$1" | sed -e 's/ /_/g')
