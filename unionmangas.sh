@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 function version() {
-  echo "[+] Union Mangás: Leitor Online em Português 1.4"
+  echo "[+] Union Mangás: Leitor Online em Português 1.5"
 }
 function frase() {
   echo "Veja https://github.com/kumroute/unionmangas/ para mais informações"
@@ -65,33 +65,20 @@ function config_file_list() {
   done
 }
 function read_cap() {
-  nome_manga=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1)
-  echo "[+] Nome do mangá: $nome_manga"
-  nome_manga_url=$(cat $diretorio_config/config.txt | head -$1 | tail -1)
-  if [ "$2" == "last" ] ; then
-    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > $diretorio_config/union.txt
-    num_cap=$(cat $diretorio_config/union.txt | awk {'print $2'})
-    echo "[+] Número do capítulo: $num_cap"
-  else
-    num_cap=$2
-    echo "[+] Número do capítulo: $num_cap"
-  fi
   nome_manga_url=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
   firefox http://unionmangas.net/leitor/$nome_manga_url/$num_cap
   rm $diretorio_config/union.txt
 }
+function read_manga() {
+    nome_do_manga=$(echo "$1" | sed -e 's/ /_/g')
+    primeira_imagem=$(ls -t -l $MANGA_DOWNLOAD/$nome_do_manga/$2 | tail -1 | awk {'print $9'})
+    viewnior "$MANGA_DOWNLOAD/$nome_do_manga/$2/$primeira_imagem"
+}
 function download() {
+  num_cap=$2
   nome_manga=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1)
   echo "[+] Nome do mangá: $nome_manga"
   nome_manga_url=$(cat $diretorio_config/config.txt | head -$1 | tail -1)
-  if [ "$2" == "last" ] ; then
-    curl -s http://unionmangas.net/manga/$nome_manga_url | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -1 > $diretorio_config/union.txt
-    num_cap=$(cat $diretorio_config/union.txt | awk {'print $2'})
-    echo "[+] Número do capítulo: $num_cap"
-  else
-    num_cap=$2
-    echo "[+] Número do capítulo: $num_cap"
-  fi
   nome_manga_url=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
   curl -s "http://unionmangas.net/leitor/$nome_manga_url/$num_cap" | grep -E ".jpg|.png" | grep "data-lazy" | sed -e 's/<img data-lazy=\"//g' | sed -e 's/  class=\"real img-responsive\" id=\"imagem-//g' | sed -e 's/.jpg\"/.jpg /g' | sed -e 's/.png\"/.png /g' | sed -e 's/  \/>//g' | sed -e 's/                    //g' > $diretorio_config/union_links.txt
   nome_dir=$(echo $nome_manga | sed -e 's/ /_/g')
@@ -178,17 +165,47 @@ if [ "$1" == "config" ] ; then
     config_file_list
   fi
 fi
-if [ "$1" == "read" ] || [ "$1" == "download" ] ; then
+if [ "$1" == "read" ] ; then
   if [ ! $2 ] ; then
     version
-    echo "[+] Uso: unionmangas $1 <número do mangá> <capítulo>"
+    echo "[+] Uso: unionmangas read <opção> <número do mangá> <capítulo>"
+    echo " :: <opção> pode ser online (pelo firefox) ou offline (por um mangá já baixado)"
     echo " :: Se <capítulo> for omitido, o capítulo mais recente será selecionado"
     frase
   else
-    if [ ! $3 ] ; then param="last"
-    else param=$3 ; fi
-    if [ "$1" == "read" ] ; then read_cap $2 $param
-    else download $2 $param ; fi
+    if [ ! $4 ] ; then
+      num_cap=$(show 1 | grep "Cap." | head -$3 | tail -1 | awk {'print $2'})
+      echo "[+] Número do capítulo: $num_cap"
+    else
+      num_cap=$4
+      echo "[+] Número do capítulo: $num_cap"
+    fi
+    nome_manga=$(cat $diretorio_config/config_name_list.txt | head -$3 | tail -1)
+    echo "[+] Nome do mangá: $nome_manga"
+    if [ "$2" == "online" ] ; then
+      read_cap $3 $num_cap
+    fi
+    if [ "$2" == "offline" ] ; then
+      read_manga "$nome_manga" $num_cap
+    fi
+  fi
+fi
+
+if [ "$1" == "download" ] ; then
+  if [ ! $2 ] ; then
+    version
+    echo "[+] Uso: unionmangas download <número do mangá> <capítulo>"
+    echo " :: Se <capítulo> for omitido, o capítulo mais recente será selecionado"
+    frase
+  else
+    if [ ! $3 ] ; then
+    num_cap=$(show 1 | grep "Cap." | head -$2 | tail -1 | awk {'print $2'})
+    echo "[+] Número do capítulo: $num_cap"
+  else
+    num_cap=$3
+    echo "[+] Número do capítulo: $num_cap"
+  fi
+  download $2 $num_cap
   fi
 fi
 if [ "$1" == "news" ] ; then
