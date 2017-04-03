@@ -26,13 +26,14 @@ function show() {
   if [ $1 ] ; then param=$1
   else param=2 ; fi
   function config() {
-  union=$(curl -s "http://unionmangas.net/manga/$1" | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -$param)
+  curl -s "http://unionmangas.net/manga/$1" | grep "font-size: 10px; color: #999" | sed -n '/^$/!{s/<[^>]*>//g;p;}' | sed -e 's/                    //g' | head -$param > $diretorio_config/union.txt
   }
   function show_cap() {
     i=1 ; while [ $i -le $param ] ; do
-      echo "  $(echo "$union" | head -$i | tail -1)"
+      echo "  $(cat $diretorio_config/union.txt | head -$i | tail -1)"
       i=$[i+1]
     done
+    rm $diretorio_config/union.txt
   }
   echo "[+] Hoje é dia $(date +%d/%m/%Y)"
   num_linhas=$(wc -l $diretorio_config/config.txt | awk '{print $1}')
@@ -66,6 +67,7 @@ function config_file_list() {
 function read_cap() {
   nome_manga_url=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
   firefox http://unionmangas.net/leitor/$nome_manga_url/$num_cap
+  rm $diretorio_config/union.txt
 }
 function read_manga() {
     nome_do_manga=$(echo "$1" | sed -e 's/ /_/g')
@@ -110,11 +112,12 @@ function download() {
   rm $diretorio_config/union_links.txt
 }
 function news() {
-  union=$(curl -s http://unionmangas.net | grep "&nbsp;<a href" | sed -e "s/&nbsp;<a href=\"http:\/\/unionmangas.net\/leitor\///g" | sed -e 's/<\/a>//g' | sed -e 's/\">/ /g' | sed -e 's/                                / /g' | sed -e 's/\// /g')
+  curl -s http://unionmangas.net | grep "&nbsp;<a href" | sed -e "s/&nbsp;<a href=\"http:\/\/unionmangas.net\/leitor\///g" | sed -e 's/<\/a>//g' | sed -e 's/\">/ /g' | sed -e 's/                                / /g' | sed -e 's/\// /g' > $diretorio_config/union.txt
   quantidade=$1
   m=1 ; while [ $m -le $quantidade ] ; do
-    nome_manga=$(echo "$union" | head -$m | tail -1 | awk {'print $1'} | sed -e 's/_/ /g')
-    numero_cap=$(echo "$union" | head -$m | tail -1 | awk {'print $4'})
+    valor=$(printf "$m" ; printf "p")
+    nome_manga=$(sed -n $valor $diretorio_config/union.txt | awk {'print $1'} | sed -e 's/_/ /g')
+    numero_cap=$(sed -n $valor $diretorio_config/union.txt | awk {'print $4'})
     echo "[#$m] $nome_manga"
     echo "  Cap. $numero_cap"
     m=$[m+1]
@@ -217,6 +220,7 @@ fi
 if [ "$1" == "reset" ] ; then
   rm -rf $diretorio_config/config.txt
   rm -rf $diretorio_config/config_name_list.txt
+  rm -rf $diretorio_config/union.txt
   rm -rf $diretorio_config/union_links.txt
 fi
 
