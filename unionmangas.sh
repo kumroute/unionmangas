@@ -78,6 +78,7 @@ function download() {
   num_cap=$2
   nome_manga=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1)
   echo "[+] Nome do mangá: $nome_manga"
+  echo "[+] Baixando..."
   nome_manga_url=$(cat $diretorio_config/config.txt | head -$1 | tail -1)
   nome_manga_url=$(cat $diretorio_config/config_name_list.txt | head -$1 | tail -1 | sed -e 's/ /_/g')
   curl -s "http://unionmangas.net/leitor/$nome_manga_url/$num_cap" | grep -E ".jpg|.png" | grep "data-lazy" | sed -e 's/<img data-lazy=\"//g' | sed -e 's/  class=\"real img-responsive\" id=\"imagem-//g' | sed -e 's/.jpg\"/.jpg /g' | sed -e 's/.png\"/.png /g' | sed -e 's/  \/>//g' | sed -e 's/                    //g' > $diretorio_config/union_links.txt
@@ -95,8 +96,7 @@ function download() {
     arquivo=$(cat $diretorio_config/union_links.txt | sed -e 's/ /_/g' | sed -e 's/.jpg_/.jpg /g' | sed -e 's/.png_/.png /g' | head -$n | tail -1 | awk {'print $1'} | sed -e 's/\// /g' | awk '{print $7}' | sed -e 's/-_/- /g')
     link_baixar="http://unionmangas.net/leitor/mangas/$nome_manga_url/$num_cap/$arquivo"
     if [ "$arquivo" ] ; then
-      echo "[+] Baixando $capitulo..."
-      wget --max-redirect=0 -q "$link_baixar"
+      wget --max-redirect=0 -q --show-progress "$link_baixar"
       if [ $? -eq 0 ] ; then
         mv ./"$(echo $capitulo | sed -e 's/-_/- /g')" $MANGA_DOWNLOAD/$nome_dir/$num_cap/$capitulo
       fi
