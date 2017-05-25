@@ -112,14 +112,13 @@ function download() {
   rm $diretorio_config/union_links.txt
 }
 function news() {
-  curl -s http://unionmangas.net | grep "&nbsp;<a href" | sed -e "s/&nbsp;<a href=\"http:\/\/unionmangas.net\/leitor\///g" | sed -e 's/<\/a>//g' | sed -e 's/\">/ /g' | sed -e 's/                                / /g' | sed -e 's/\// /g' > $diretorio_config/union.txt
+  curl -s http://unionmangas.net | grep "&nbsp;<a href" | sed -e "s/&nbsp;<a href=\"http:\/\/unionmangas.net\/leitor\///g" | sed -e 's/<\/a>//g' | sed -e 's/\">/ /g' | sed -e 's/                                / /g' | sed -e 's/\// /g' | sed -e 's/\r//g' > $diretorio_config/union.txt
   quantidade=$1
   m=1 ; while [ $m -le $quantidade ] ; do
     valor=$(printf "$m" ; printf "p")
     nome_manga=$(sed -n $valor $diretorio_config/union.txt | awk {'print $1'} | sed -e 's/_/ /g')
     numero_cap=$(sed -n $valor $diretorio_config/union.txt | awk {'print $4'})
-    echo "[#$m] $nome_manga"
-    echo "  Cap. $numero_cap"
+    echo -e " $nome_manga [\e[33;1m${numero_cap}\e[0m]"
     m=$[m+1]
   done
 }
